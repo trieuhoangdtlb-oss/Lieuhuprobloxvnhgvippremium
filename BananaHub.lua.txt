@@ -1,0 +1,148 @@
+-- [[ ANTI-BAN & ANTI-RESET LEVEL SYSTEM ]]
+local function AntiBan()
+    local g = getmetatable(game)
+    setreadonly(g, false)
+    local old = g.__namecall
+    g.__namecall = newcclosure(function(self, ...)
+        local method = getnamecallmethod()
+        if method == "Kick" or method == "kick" then
+            return nil
+        end
+        return old(self, ...)
+    end)
+    if game:GetService("ReplicatedStorage"):FindFirstChild("Remotes") then
+        local r = game:GetService("ReplicatedStorage").Remotes
+        if r:FindFirstChild("Check") then r.Check:Destroy() end
+    end
+end
+task.spawn(AntiBan)
+
+getgenv().Config = getgenv().Config or {}
+
+local function UpdateSetting(key, value)
+    getgenv().Config[key] = value
+    if value == true then
+        task.spawn(function()
+            while getgenv().Config[key] == true do
+                if game:GetService("Stats").Network.ServerStatsItem["Data Throughput Out"]:GetValue() < 0.1 then
+                    getgenv().Config[key] = false
+                end
+                task.wait(5)
+            end
+        end)
+    end
+    if key == "Farm Level" then getgenv().AutoFarmLevel = value 
+    elseif key == "Farm Bone" then getgenv().AutoBone = value
+    elseif key == "Farm Event" then getgenv().AutoSeaEvent = value
+    elseif key == "Farm Boss" then getgenv().AutoFarmBoss = value
+    elseif key == "Farm Nguyên Liệu" then getgenv().AutoMaterials = value
+    elseif key == "Dịch Chuyển" then getgenv().AutoTeleport = value end
+end
+
+-- UI Setup
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "LieuHup_Premium_UI"
+ScreenGui.Parent = game:GetService("CoreGui")
+
+-- Nút 🐱 chính
+local MainBtn = Instance.new("TextButton")
+MainBtn.Size = UDim2.new(0, 60, 0, 60)
+MainBtn.Position = UDim2.new(0, 15, 0.5, -30)
+MainBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+MainBtn.BackgroundTransparency = 0.3
+MainBtn.Text = "🐱"
+MainBtn.TextSize = 35
+MainBtn.Draggable = true
+MainBtn.Parent = ScreenGui
+Instance.new("UICorner", MainBtn).CornerRadius = UDim.new(1, 0)
+Instance.new("UIStroke", MainBtn).Color = Color3.fromRGB(255, 255, 255)
+
+-- Khung Menu
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 220, 0, 310)
+Frame.Position = UDim2.new(0, 85, 0.5, -155)
+Frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Frame.BackgroundTransparency = 0.4
+Frame.Visible = false
+Frame.Parent = ScreenGui
+Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 15)
+Instance.new("UIStroke", Frame).Color = Color3.fromRGB(255, 255, 255)
+
+-- Tiêu đề: Đổi thành LIỄU_HUP PREMIUM
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 45)
+Title.Text = "LIỄU_HUP PREMIUM"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.BackgroundTransparency = 1
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 16
+Title.Parent = Frame
+
+local UIList = Instance.new("UIListLayout", Frame)
+UIList.Padding = UDim.new(0, 6)
+UIList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+local function CreateToggle(name, icon)
+    local Container = Instance.new("Frame")
+    Container.Size = UDim2.new(0.9, 0, 0, 38)
+    Container.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    Container.BackgroundTransparency = 0.7
+    Container.Parent = Frame
+    Instance.new("UICorner", Container).CornerRadius = UDim.new(0, 8)
+
+    local Label = Instance.new("TextLabel")
+    Label.Size = UDim2.new(0.7, 0, 1, 0)
+    Label.Position = UDim2.new(0.05, 0, 0, 0)
+    Label.Text = icon .. " " .. name
+    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Label.TextXAlignment = Enum.TextXAlignment.Left
+    Label.BackgroundTransparency = 1
+    Label.Font = Enum.Font.GothamSemibold
+    Label.TextSize = 13
+    Label.Parent = Container
+
+    local Box = Instance.new("TextButton")
+    Box.Size = UDim2.new(0, 20, 0, 20)
+    Box.Position = UDim2.new(0.82, 0, 0.25, 0)
+    Box.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    Box.BackgroundTransparency = 0.5
+    Box.Text = ""
+    Box.Parent = Container
+    Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 5)
+
+    local IsToggled = false
+    Box.MouseButton1Click:Connect(function()
+        IsToggled = not IsToggled
+        UpdateSetting(name, IsToggled)
+        Box.BackgroundTransparency = IsToggled and 0 or 0.5
+        Box.Text = IsToggled and "✔" or ""
+        Box.TextColor3 = Color3.fromRGB(0, 0, 0)
+    end)
+end
+
+CreateToggle("Farm Level", "⚔️")
+CreateToggle("Farm Bone", "🦴")
+CreateToggle("Farm Event", "🌊")
+CreateToggle("Farm Boss", "👹")
+CreateToggle("Farm Nguyên Liệu", "📦")
+CreateToggle("Dịch Chuyển", "⚡")
+
+MainBtn.MouseButton1Click:Connect(function()
+    Frame.Visible = not Frame.Visible
+end)
+
+task.spawn(function()
+    local function SafeLoad(url) pcall(function() loadstring(game:HttpGet(url))() end) end
+    local pid = game.PlaceId
+    if pid == 2753915549 or pid == 4442272183 or pid == 7449423635 then
+        SafeLoad("https://raw.githubusercontent.com")
+    else
+        SafeLoad("https://raw.githubusercontent.com")
+    end
+end)
+
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "LIỄU_HUP PREMIUM",
+    Text = "loading...",
+    Duration = 5
+})
